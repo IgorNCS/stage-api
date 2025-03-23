@@ -190,6 +190,75 @@ export class ProcessService {
       throw error;
     }
   }
+  async setParentProcess(
+    processId: string,
+    parentId: string,
+  ): Promise<Process> {
+    try {
+      const userToken = this.clsService.get('user');
+
+      const process = await this.modelRepository.findOne({
+        where: { id: processId },
+        relations: ['parent_process', 'area', 'responsible_people'],
+      });
+      if (!process) {
+        throw new NotFoundException(`Process with ID ${processId} not found`);
+      }
+
+      const parentProcess = await this.modelRepository.findOne({
+        where: { id: parentId },
+      });
+      if (!parentProcess) {
+        throw new NotFoundException(
+          `Parent process with ID ${parentId} not found`,
+        );
+      }
+
+      const area = await this.areaService.findOne(process.area.id);
+      if (
+        userToken.role !== Role.ADMIN &&
+        area &&
+        !area.responsables.some(
+          (responsable) => responsable.id === userToken.userId,
+        )
+      ) {
+        throw new UnauthorizedException(
+          'Access not authorized: only a manager responsible for this area can update it',
+        );
+      }
+
+      process.parent_process = parentProcess;
+
+      return this.modelRepository.save(process);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async unsetParentProcess(processId: string): Promise<Process> {
+    try {
+      const userToken = this.clsService.get('user');
+
+      const process = await this.modelRepository.findOne({
+        where: { id: processId },
+        relations: ['parent_process', 'area', 'responsible_people'],
+      });
+      if (!process) {
+        throw new NotFoundException(`Process with ID ${processId} not found`);
+      }
+
+      if (userToken.role !== Role.ADMIN) {
+        throw new UnauthorizedException(
+          'Access not authorized: only admin can unset parent',
+        );
+      }
+      process.parent_process = null;
+
+      return this.modelRepository.save(process);
+    } catch (error) {
+      throw error;
+    }
+  }
 
   remove(id: number) {
     return `This action removes a #${id} process`;

@@ -53,7 +53,10 @@ export class ProcessController {
   remResponsable(@Param('id') id: string, @Param('userId') userId: string) {
     return this.processService.removeResponsableFromProcess(id, userId);
   }
-
+  @Patch(':id/set-parent/:parentId')
+  setParent(@Param('id') id: string, @Param('parentId') parentId: string) {
+    return this.processService.setParentProcess(id, parentId);
+  }
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.processService.remove(+id);
