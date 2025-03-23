@@ -2,14 +2,14 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
   DeleteDateColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Role } from '../enums/role';
+import { Area } from '../../area/entities/area.entity';
 
 @Entity()
 export class User {
@@ -45,4 +45,18 @@ export class User {
 
   @Column()
   active: boolean;
+
+  @ManyToMany(() => Area, (area) => area.responsables)
+  @JoinTable({
+    name: 'user_areas', // Nome da tabela de junção
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'area_id',
+      referencedColumnName: 'id',
+    },
+  })
+  areas: Area[];
 }

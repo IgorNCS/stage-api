@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AreaService } from './area.service';
 import { CreateAreaDTO } from './dto/request/create-area.dto';
 import { UpdateAreaDTO } from './dto/request/update-area.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('area')
+@UseGuards(AuthGuard('jwt'))
 export class AreaController {
   constructor(private readonly areaService: AreaService) {}
 
@@ -32,3 +34,4 @@ export class AreaController {
     return this.areaService.remove(+id);
   }
 }
+
