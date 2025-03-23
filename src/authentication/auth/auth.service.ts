@@ -12,10 +12,10 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
 
-  async login(loginDto: LoginRequestDTO): Promise<LoginResponsetDTO> {
+  async login(loginDTO: LoginRequestDTO): Promise<LoginResponsetDTO> {
     try {
-      const user = await this.userService.findOneByEmail(loginDto.email);
-      if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
+      const user = await this.userService.findOneByEmail(loginDTO.email);
+      if (!user || !(await bcrypt.compare(loginDTO.password, user.password))) {
         throw new UnauthorizedException('Invalid credentials');
       }
 

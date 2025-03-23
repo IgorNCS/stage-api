@@ -17,9 +17,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  create(@Body() loginDto: LoginRequestDTO) {
+  create(@Body() loginDTO: LoginRequestDTO) {
     try {
-      return this.authService.login(loginDto);
+      return this.authService.login(loginDTO);
     } catch (error) {
       throw error;
     }

@@ -1,7 +1,7 @@
 import { IsString, IsEmail, IsDate, IsEnum, IsBoolean, IsOptional, Matches, IsNotEmpty } from 'class-validator';
 import { Role } from '../../enums/role';
 
-export class CreateUserRequestDto {
+export class CreateUserRequestDTO {
   @IsString()
   @Matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)
   cpf: string;

@@ -3,8 +3,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserRequestDto } from './dto/request/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserRequestDTO } from './dto/request/create-user.dto';
+import { UpdateUserDTO } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -18,9 +18,9 @@ export class UserService {
     private modelRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserRequestDto): Promise<User> {
+  async create(createUserDTO: CreateUserRequestDTO): Promise<User> {
     try {
-      const user = this.modelRepository.create(createUserDto);
+      const user = this.modelRepository.create(createUserDTO);
       user.password = await bcrypt.hash(user.password, 10);
       user.active = true;
       return await this.modelRepository.save(user);
@@ -52,7 +52,7 @@ console.log(error)
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  update(id: number, updateUserDTO: UpdateUserDTO) {
     return `This action updates a #${id} user`;
   }
 

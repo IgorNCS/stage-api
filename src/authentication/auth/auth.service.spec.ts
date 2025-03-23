@@ -40,36 +40,36 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return an access token if credentials are valid', async () => {
-      const loginDto = { email: 'test@example.com', password: 'password123' };
+      const loginDTO = { email: 'test@example.com', password: 'password123' };
       const user = { id: 1, email: 'test@example.com', password: await bcrypt.hash('password123', 10) };
 
       (userService.findOneByEmail as jest.Mock).mockResolvedValue(user as any);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(Promise.resolve(true) as never);
       jest.spyOn(jwtService, 'sign').mockReturnValue('accessToken');
 
-      const result = await service.login(loginDto);
+      const result = await service.login(loginDTO);
 
-      expect(userService.findOneByEmail).toHaveBeenCalledWith(loginDto.email);
-      expect(bcrypt.compare).toHaveBeenCalledWith(loginDto.password, user.password);
+      expect(userService.findOneByEmail).toHaveBeenCalledWith(loginDTO.email);
+      expect(bcrypt.compare).toHaveBeenCalledWith(loginDTO.password, user.password);
       expect(jwtService.sign).toHaveBeenCalledWith({ userId: user.id, email: user.email });
       expect(result).toEqual({ accessToken: 'accessToken' });
     });
 
     it('should throw UnauthorizedException if credentials are invalid', async () => {
-      const loginDto = { email: 'test@example.com', password: 'wrongPassword' };
+      const loginDTO = { email: 'test@example.com', password: 'wrongPassword' };
       const user = { id: 1, email: 'test@example.com', password: await bcrypt.hash('password123', 10) };
 
       (userService.findOneByEmail as jest.Mock).mockResolvedValue(user);
       jest.spyOn(bcrypt, 'compare').mockResolvedValue(Promise.resolve(false) as never);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDTO)).rejects.toThrow(UnauthorizedException);
     });
     it('should throw UnauthorizedException if user does not exist', async () => {
-      const loginDto = { email: 'nonexistent@example.com', password: 'password123' };
+      const loginDTO = { email: 'nonexistent@example.com', password: 'password123' };
 
       (userService.findOneByEmail as jest.Mock).mockResolvedValue(undefined);
 
-      await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(service.login(loginDTO)).rejects.toThrow(UnauthorizedException);
     });
   });
 });

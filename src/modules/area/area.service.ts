@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAreaDto } from './dto/create-area.dto';
-import { UpdateAreaDto } from './dto/update-area.dto';
+import { CreateAreaDTO } from './dto/request/create-area.dto';
+import { UpdateAreaDTO } from './dto/request/update-area.dto';
 
 @Injectable()
 export class AreaService {
-  create(createAreaDto: CreateAreaDto) {
+  create(createAreaDTO: CreateAreaDTO) {
     return 'This action adds a new area';
   }
 
@@ -16,7 +16,7 @@ export class AreaService {
     return `This action returns a #${id} area`;
   }
 
-  update(id: number, updateAreaDto: UpdateAreaDto) {
+  update(id: number, updateAreaDTO: UpdateAreaDTO) {
     return `This action updates a #${id} area`;
   }
 
