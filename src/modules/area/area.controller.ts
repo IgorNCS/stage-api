@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AreaService } from './area.service';
 import { CreateAreaDTO } from './dto/request/create-area.dto';
 import { UpdateAreaDTO } from './dto/request/update-area.dto';
@@ -19,14 +30,14 @@ export class AreaController {
   @Get()
   findAll(
     @Query(new ValidationPipe({ transform: true }))
-    paginationFilterRequest: PaginationFilterRequest
+    paginationFilterRequest: PaginationFilterRequest,
   ) {
     return this.areaService.findAll(paginationFilterRequest);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.areaService.findOne(+id);
+    return this.areaService.findOne(id);
   }
 
   @Patch(':id')
@@ -34,9 +45,14 @@ export class AreaController {
     return this.areaService.update(id, updateAreaDTO);
   }
 
-  @Post(':id/responsable')
-  addManager(@Param('id') id: string, @Body() userId: AddResponsableAreaDTO) {
+  @Patch(':id/add-responsable/:userId')
+  addManager(@Param('id') id: string, @Param('userId') userId: string) {
     return this.areaService.addResponsableToArea(id, userId);
+  }
+
+  @Patch(':id/rem-responsable/:userId')
+  removeManager(@Param('id') id: string, @Param('userId') userId: string) {
+    return this.areaService.removeResponsableFromArea(id, userId);
   }
 
   @Delete(':id')
@@ -44,4 +60,3 @@ export class AreaController {
     return this.areaService.remove(+id);
   }
 }
-

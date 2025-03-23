@@ -67,8 +67,8 @@ export class AreaService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} area`;
+  async findOne(id: string) {
+    return await this.modelRepository.findOne({ where: { id }, relations: ['responsables'] });
   }
 
   async update(id: string, updateAreaDTO: UpdateAreaDTO) {
@@ -96,12 +96,9 @@ export class AreaService {
     }
   }
 
-  async addResponsableToArea(
-    areaId: string,
-    addResponsableAreaDTO: AddResponsableAreaDTO,
-  ): Promise<Area> {
+  async addResponsableToArea(areaId: string, userId: string): Promise<Area> {
     try {
-      const userId = addResponsableAreaDTO.userId;
+      const userToken = this.clsService.get('user');
 
       const area = await this.modelRepository.findOne({
         where: { id: areaId },
@@ -110,7 +107,7 @@ export class AreaService {
       if (!area) {
         throw new NotFoundException(`Area with ID ${areaId} not found`);
       }
-      console.log(userId);
+
       const user = await this.userRepository.findOne({
         where: { id: userId, role: Role.MANAGER },
       });
@@ -118,16 +115,67 @@ export class AreaService {
         throw new NotFoundException(`User with ID ${userId} Manager not found`);
       }
 
+      if (
+        userToken.role !== Role.ADMIN &&
+        (userToken.role !== Role.MANAGER ||
+          !area.responsables.some(
+            (responsable) => responsable.id === userToken.userId,
+          ))
+      ) {
+        throw new UnauthorizedException(
+          'Access not authorizedn only admin or responsible can update area',
+        );
+      }
+
       // Verifica se o usuário já é responsável pela área
       if (
         !area.responsables.some((responsable) => responsable.id === user.id)
       ) {
-        console.log('oi');
         area.responsables.push(user);
         return this.modelRepository.save(area);
       }
 
       return area; // Retorna a área sem alterações se o usuário já for responsável
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async removeResponsableFromArea(
+    areaId: string,
+    userId: string,
+  ): Promise<Area> {
+    try {
+      const userToken = this.clsService.get('user');
+      const area = await this.modelRepository.findOne({
+        where: { id: areaId },
+        relations: ['responsables'],
+      });
+      if (!area) {
+        throw new NotFoundException(`Area with ID ${areaId} not found`);
+      }
+
+      if (userToken.role !== Role.ADMIN && userToken.userId !== userId) {
+        throw new UnauthorizedException(
+          'Access not authorized: only admin can remove other users',
+        );
+      }
+
+      const user = await this.userRepository.findOne({
+        where: { id: userId, role: Role.MANAGER },
+      });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} Manager not found`);
+      }
+
+      if (area.responsables.some((responsable) => responsable.id === user.id)) {
+        area.responsables = area.responsables.filter(
+          (responsable) => responsable.id !== user.id,
+        );
+        return this.modelRepository.save(area);
+      }
+
+      return area;
     } catch (error) {
       throw error;
     }
