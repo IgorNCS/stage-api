@@ -1,7 +1,8 @@
 // subprocess.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, DeleteDateColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, DeleteDateColumn, CreateDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Process } from '../../process/entities/process.entity';
 import { ProcessStatus } from '../../process/enums/processStatus';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Subprocess {
@@ -17,8 +18,10 @@ export class Subprocess {
   @Column({ type: 'text', array: true, nullable: true })
   systems_tools: string[];
 
-  @Column({ type: 'text', array: true, nullable: true })
-  responsible_people: string[];
+  @ManyToMany(() => User, (user) => user.subprocesses)
+  @JoinTable()
+  responsible_people: User[];
+
 
   @Column({ type: 'text', array: true, nullable: true })
   associated_documentation: string[];

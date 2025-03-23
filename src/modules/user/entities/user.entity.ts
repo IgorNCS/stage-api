@@ -10,6 +10,8 @@ import {
 } from 'typeorm';
 import { Role } from '../enums/role';
 import { Area } from '../../area/entities/area.entity';
+import { Process } from '../../process/entities/process.entity';
+import { Subprocess } from '../../subprocess/entities/subprocess.entity';
 
 @Entity()
 export class User {
@@ -48,7 +50,7 @@ export class User {
 
   @ManyToMany(() => Area, (area) => area.responsables)
   @JoinTable({
-    name: 'user_areas', // Nome da tabela de junção
+    name: 'user_areas',
     joinColumn: {
       name: 'user_id',
       referencedColumnName: 'id',
@@ -59,4 +61,32 @@ export class User {
     },
   })
   areas: Area[];
+
+  @ManyToMany(() => Process, (process) => process.responsible_people)
+  @JoinTable({
+    name: 'user_process',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'process_id',
+      referencedColumnName: 'id',
+    },
+  })
+  processes: Process[];
+
+  @ManyToMany(() => Subprocess, (subprocess) => subprocess.responsible_people)
+  @JoinTable({
+    name: 'user_subprocess',
+    joinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'subprocess_id',
+      referencedColumnName: 'id',
+    },
+  })
+  subprocesses: Subprocess[];
 }

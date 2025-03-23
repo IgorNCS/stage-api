@@ -1,8 +1,20 @@
 // process.entity.ts
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, DeleteDateColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  DeleteDateColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
+} from 'typeorm';
 import { Area } from '../../area/entities/area.entity';
 import { Subprocess } from '../../subprocess/entities/subprocess.entity';
 import { ProcessStatus } from '../enums/processStatus';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Process {
@@ -18,16 +30,17 @@ export class Process {
   @Column({ type: 'text', array: true, nullable: true })
   systems_tools: string[];
 
-  @Column({ type: 'text', array: true, nullable: true })
-  responsible_people: string[];
+  @ManyToMany(() => User, (user) => user.processes)
+  @JoinTable()
+  responsible_people: User[];
 
   @Column({ type: 'text', array: true, nullable: true })
   associated_documentation: string[];
 
-  @ManyToOne(() => Area, area => area.processes)
+  @ManyToOne(() => Area, (area) => area.processes)
   area: Area;
 
-  @OneToMany(() => Subprocess, subprocess => subprocess.process)
+  @OneToMany(() => Subprocess, (subprocess) => subprocess.process)
   subprocesses: Subprocess[];
 
   @CreateDateColumn()
@@ -49,3 +62,4 @@ export class Process {
   })
   status: ProcessStatus;
 }
+
