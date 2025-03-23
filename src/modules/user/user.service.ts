@@ -3,11 +3,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserRequestDto } from './dto/request/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
+
 
 @Injectable()
 export class UserService {
@@ -15,8 +17,22 @@ export class UserService {
     @InjectRepository(User)
     private modelRepository: Repository<User>,
   ) {}
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+
+  async create(createUserDto: CreateUserRequestDto): Promise<User> {
+    try {
+      const user = this.modelRepository.create(createUserDto);
+      user.password = await bcrypt.hash(user.password, 10);
+      user.active = true;
+      return await this.modelRepository.save(user);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new NotFoundException('CPF ou email já cadastrado');
+      }
+console.log(error)
+      throw new InternalServerErrorException(
+        'Erro ao criar o usuario, tente novamente mais tarde',
+      );
+    }
   }
 
   findAll() {
@@ -27,12 +43,11 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  async findOneByEmail(email: string): Promise<User> {
+  async findOneByEmail(email: string): Promise<User | null> {
     try {
-      const user = await this.modelRepository.findOne({ where: { email } });
-      if (!user) throw new NotFoundException('User not found');
-      return user;
+      return await this.modelRepository.findOne({ where: { email } });
     } catch (error) {
+      console.log(error)
       throw new InternalServerErrorException('Error finding user');
     }
   }

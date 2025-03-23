@@ -16,13 +16,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   cpf: string;
 
   @Column()
   name: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -42,5 +42,7 @@ export class User {
 
   @DeleteDateColumn()
   deleted_at: Date;
-}
 
+  @Column()
+  active: boolean;
+}

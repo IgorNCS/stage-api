@@ -25,10 +25,10 @@ export class AuthService {
       };
     } catch (error) {
       if (error instanceof UnauthorizedException) {
-        throw error; // Relança UnauthorizedException diretamente
+        throw error;
       }
       console.error('Login error:', error);
-      throw new Error('Login failed'); // Lança um erro genérico com log
+      throw new Error('Login failed');
     }
   }
 

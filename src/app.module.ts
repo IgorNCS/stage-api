@@ -4,9 +4,18 @@ import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
+import { AuthModule } from './authentication/auth/auth.module';
+import { ClsModule } from 'nestjs-cls';
+import { AreaModule } from './modules/area/area.module';
 dotenv.config()
 @Module({
   imports: [
+    AuthModule,
+    ClsModule.forRoot({
+      global: true,
+      middleware: { mount: true },
+      interceptor: { mount: false },
+    }),
     UserModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -21,6 +30,7 @@ dotenv.config()
       migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
 
     }),
+    AreaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

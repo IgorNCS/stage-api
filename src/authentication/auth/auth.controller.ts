@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Request, UseGuards, Res, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Request,
+  UseGuards,
+  Res,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginRequestDTO } from './dto/request/login.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -10,12 +18,19 @@ export class AuthController {
 
   @Post('login')
   create(@Body() loginDto: LoginRequestDTO) {
-    return this.authService.login(loginDto);
+    try {
+      return this.authService.login(loginDto);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Post('logout')
   async logout(@Res() res: Response) {
-    return res.clearCookie('access_token').status(HttpStatus.OK).json({ access_token: null, status: HttpStatus.OK });
+    return res
+      .clearCookie('access_token')
+      .status(HttpStatus.OK)
+      .json({ access_token: null, status: HttpStatus.OK });
   }
 }
