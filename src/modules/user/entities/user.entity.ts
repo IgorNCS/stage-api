@@ -11,7 +11,6 @@ import {
 import { Role } from '../enums/role';
 import { Area } from '../../area/entities/area.entity';
 import { Process } from '../../process/entities/process.entity';
-import { Subprocess } from '../../subprocess/entities/subprocess.entity';
 
 @Entity()
 export class User {
@@ -76,17 +75,4 @@ export class User {
   })
   processes: Process[];
 
-  @ManyToMany(() => Subprocess, (subprocess) => subprocess.responsible_people)
-  @JoinTable({
-    name: 'user_subprocess',
-    joinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'subprocess_id',
-      referencedColumnName: 'id',
-    },
-  })
-  subprocesses: Subprocess[];
 }

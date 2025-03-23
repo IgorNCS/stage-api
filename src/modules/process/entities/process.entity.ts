@@ -12,7 +12,6 @@ import {
   JoinTable,
 } from 'typeorm';
 import { Area } from '../../area/entities/area.entity';
-import { Subprocess } from '../../subprocess/entities/subprocess.entity';
 import { ProcessStatus } from '../enums/processStatus';
 import { User } from '../../user/entities/user.entity';
 
@@ -40,8 +39,12 @@ export class Process {
   @ManyToOne(() => Area, (area) => area.processes)
   area: Area;
 
-  @OneToMany(() => Subprocess, (subprocess) => subprocess.process)
-  subprocesses: Subprocess[];
+
+  @OneToMany(() => Process, (process) => process.parent_process)
+  processes: Process[];
+
+  @ManyToOne(() => Process, (process) => process.processes)
+  parent_process: Process;
 
   @CreateDateColumn()
   created_at: Date;
@@ -62,5 +65,4 @@ export class Process {
   })
   status: ProcessStatus;
 }
-
 
