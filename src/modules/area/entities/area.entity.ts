@@ -12,7 +12,7 @@ import {
   @Entity()
   export class Area {
     @PrimaryGeneratedColumn('uuid')
-    id: number;
+    id: string;
   
     @Column()
     name: string;

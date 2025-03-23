@@ -26,7 +26,7 @@ export class AreaController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAreaDTO: UpdateAreaDTO) {
-    return this.areaService.update(+id, updateAreaDTO);
+    return this.areaService.update(id, updateAreaDTO);
   }
 
   @Delete(':id')
