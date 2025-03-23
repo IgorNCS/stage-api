@@ -14,7 +14,7 @@ import { Area } from '../../area/entities/area.entity';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({ unique: true })
   cpf: string;

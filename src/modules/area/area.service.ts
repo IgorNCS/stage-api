@@ -10,12 +10,18 @@ import { Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
 import { Role } from '../user/enums/role';
+import { PaginationFilterRequest } from '../utils/pagination';
+import { FindAllAreaResponseDTO } from './dto/response/findall-area.response.dto';
+import { AddResponsableAreaDTO } from './dto/request/add-responsable.request.dto';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AreaService {
   constructor(
     @InjectRepository(Area)
     private readonly modelRepository: Repository<Area>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly clsService: ClsService,
   ) {}
   async create(createAreaDTO: CreateAreaDTO) {
@@ -32,8 +38,33 @@ export class AreaService {
     }
   }
 
-  async findAll(): Promise<Area[]> {
-    return await this.modelRepository.find({ relations: ['responsables'] });
+  async findAll({
+    page = 1,
+    limit = 10,
+    search = '',
+  }: PaginationFilterRequest): Promise<FindAllAreaResponseDTO> {
+    const user = this.clsService.get('user');
+    const where: any = { active: true };
+    if (user && user.role !== Role.ADMIN) {
+      where.responsables = { id: user.userId };
+    }
+
+    const [data, totalItems] = await this.modelRepository.findAndCount({
+      relations: ['responsables'],
+      order: { created_at: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+      where,
+    });
+
+    return {
+      total_current: data.length,
+      current_page: page,
+      total_pages: Math.ceil(totalItems / limit),
+      total_per_pages: limit,
+      list: data,
+      totalItems,
+    };
   }
 
   findOne(id: number) {
@@ -60,6 +91,43 @@ export class AreaService {
         );
       }
       return await this.modelRepository.save({ id, ...updateAreaDTO });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addResponsableToArea(
+    areaId: string,
+    addResponsableAreaDTO: AddResponsableAreaDTO,
+  ): Promise<Area> {
+    try {
+      const userId = addResponsableAreaDTO.userId;
+
+      const area = await this.modelRepository.findOne({
+        where: { id: areaId },
+        relations: ['responsables'],
+      });
+      if (!area) {
+        throw new NotFoundException(`Area with ID ${areaId} not found`);
+      }
+      console.log(userId);
+      const user = await this.userRepository.findOne({
+        where: { id: userId, role: Role.MANAGER },
+      });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} Manager not found`);
+      }
+
+      // Verifica se o usuário já é responsável pela área
+      if (
+        !area.responsables.some((responsable) => responsable.id === user.id)
+      ) {
+        console.log('oi');
+        area.responsables.push(user);
+        return this.modelRepository.save(area);
+      }
+
+      return area; // Retorna a área sem alterações se o usuário já for responsável
     } catch (error) {
       throw error;
     }

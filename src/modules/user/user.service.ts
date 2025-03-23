@@ -9,17 +9,23 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-
+import { Role } from './enums/role';
+import { ClsService } from 'nestjs-cls';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private modelRepository: Repository<User>,
+    private readonly clsService: ClsService,
   ) {}
 
   async create(createUserDTO: CreateUserRequestDTO): Promise<User> {
     try {
+      const userId = this.clsService.get('user');
+      if (userId.role !== Role.ADMIN) {
+        createUserDTO.role = Role.EMPLOYEER;
+      }
       const user = this.modelRepository.create(createUserDTO);
       user.password = await bcrypt.hash(user.password, 10);
       user.active = true;
@@ -28,7 +34,7 @@ export class UserService {
       if (error.code === '23505') {
         throw new NotFoundException('CPF ou email já cadastrado');
       }
-console.log(error)
+      console.log(error);
       throw new InternalServerErrorException(
         'Erro ao criar o usuario, tente novamente mais tarde',
       );
@@ -47,7 +53,7 @@ console.log(error)
     try {
       return await this.modelRepository.findOne({ where: { email } });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw new InternalServerErrorException('Error finding user');
     }
   }
