@@ -1,4 +1,3 @@
-// process.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -39,11 +38,9 @@ export class Process {
   @ManyToOne(() => Area, (area) => area.processes)
   area: Area;
 
-  @Column({ nullable: true })
   @OneToMany(() => Process, (process) => process.parent_process)
   processes: Process[] | null;
 
-  @Column({ nullable: true })
   @ManyToOne(() => Process, (process) => process.processes)
   parent_process: Process | null;
 
