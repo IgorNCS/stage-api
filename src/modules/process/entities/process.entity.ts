@@ -13,6 +13,7 @@ import {
 import { Area } from '../../area/entities/area.entity';
 import { ProcessStatus } from '../enums/processStatus';
 import { User } from '../../user/entities/user.entity';
+import { Documentation } from '../../documentation/entities/documentation.entity';
 
 @Entity()
 export class Process {
@@ -29,19 +30,18 @@ export class Process {
   systems_tools: string[];
 
   @ManyToMany(() => User, (user) => user.processes)
-  @JoinTable()
+  @JoinTable({
+    name: 'process_responsible_people', // Nome da tabela de junção especificado
+  })
   responsible_people: User[];
-
-  @Column({ type: 'text', array: true, nullable: true })
-  associated_documentation: string[];
 
   @ManyToOne(() => Area, (area) => area.processes)
   area: Area;
 
   @OneToMany(() => Process, (process) => process.parent_process)
-  processes: Process[] | null;
+  subProcesses: Process[] | null; // Renomeado para subProcesses
 
-  @ManyToOne(() => Process, (process) => process.processes)
+  @ManyToOne(() => Process, (process) => process.subProcesses) // Ajustado para subProcesses
   parent_process: Process | null;
 
   @CreateDateColumn()
@@ -62,4 +62,7 @@ export class Process {
     default: ProcessStatus.DRAFT,
   })
   status: ProcessStatus;
+
+  @ManyToMany(() => Documentation, (documentation) => documentation.processes)
+  documentations: Documentation[];
 }

@@ -34,8 +34,8 @@ export class ProcessService {
       if (!area) throw new NotFoundException('Area not found');
 
       if (
-        userId.role !== Role.ADMIN ||
-        userId.role !== Role.MANAGER ||
+        userId.role !== Role.ADMIN &&
+        userId.role !== Role.MANAGER &&
         !area.responsables.some(
           (responsable) => responsable.id === userId.userId,
         )

@@ -11,4 +11,5 @@ export default new DataSource({
   url: configService.get<string>('POSTGRES_HOST'),
   entities: ['**/*.entity{.ts,.js}'],
   migrations: ['migrations/*.js'],
+  synchronize:true
 });

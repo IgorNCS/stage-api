@@ -8,13 +8,16 @@ import {
   Delete,
   Query,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ProcessService } from './process.service';
 import { CreateProcessDto } from './dto/create-process.dto';
 import { UpdateProcessDto } from './dto/update-process.dto';
 import { PaginationFilterProcessRequest } from './dto/pagination';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('process')
+@UseGuards(AuthGuard('jwt'))
 export class ProcessController {
   constructor(private readonly processService: ProcessService) {}
 

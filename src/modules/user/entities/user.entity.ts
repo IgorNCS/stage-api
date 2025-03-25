@@ -7,10 +7,12 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { Role } from '../enums/role';
 import { Area } from '../../area/entities/area.entity';
 import { Process } from '../../process/entities/process.entity';
+import { Documentation } from '../../documentation/entities/documentation.entity';
 
 @Entity()
 export class User {
@@ -47,19 +49,28 @@ export class User {
   @Column()
   active: boolean;
 
+  // @ManyToMany(() => Area, (area) => area.responsables)
+  // @JoinTable({
+  //   name: 'user_areas',
+  //   joinColumn: {
+  //     name: 'user_id',
+  //     referencedColumnName: 'id',
+  //   },
+  //   inverseJoinColumn: {
+  //     name: 'area_id',
+  //     referencedColumnName: 'id',
+  //   },
+  // })
+  // areas: Area[];
+
+  // @ManyToMany(() => Area, (area) => area.employers)
+  // employer_area: Area[];
+
   @ManyToMany(() => Area, (area) => area.responsables)
-  @JoinTable({
-    name: 'user_areas',
-    joinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'area_id',
-      referencedColumnName: 'id',
-    },
-  })
   areas: Area[];
+
+  @ManyToMany(() => Area, (area) => area.employers)
+  employer_area: Area[];
 
   @ManyToMany(() => Process, (process) => process.responsible_people)
   @JoinTable({
@@ -75,4 +86,8 @@ export class User {
   })
   processes: Process[];
 
+@OneToMany(() => Documentation, (documentation) => documentation.user)
+documentations: Documentation[];
+
 }
+

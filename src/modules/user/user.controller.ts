@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserRequestDTO } from './dto/request/create-user.dto';
 import { UpdateUserDTO } from './dto/update-user.dto';
+import { PaginationFilterUserRequest } from './dto/request/pagination';
 
 @Controller('user')
 export class UserController {
@@ -13,8 +14,13 @@ export class UserController {
   }
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(@Query() paginationFilterUserRequest: PaginationFilterUserRequest) {
+    return this.userService.findAll(paginationFilterUserRequest);
+  }
+
+  @Get('manager')
+  findAllManager(@Query() paginationFilterUserRequest: PaginationFilterUserRequest) {
+    return this.userService.findAll(paginationFilterUserRequest);
   }
 
   @Get(':id')
@@ -24,7 +30,7 @@ export class UserController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDTO: UpdateUserDTO) {
-    return this.userService.update(+id, updateUserDTO);
+    return this.userService.update(id, updateUserDTO);
   }
 
   @Delete(':id')

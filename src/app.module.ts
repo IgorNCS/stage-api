@@ -8,6 +8,7 @@ import { AuthModule } from './authentication/auth/auth.module';
 import { ClsModule } from 'nestjs-cls';
 import { AreaModule } from './modules/area/area.module';
 import { ProcessModule } from './modules/process/process.module';
+import { DocumentationModule } from './modules/documentation/documentation.module';
 dotenv.config()
 @Module({
   imports: [
@@ -33,6 +34,7 @@ dotenv.config()
     }),
     AreaModule,
     ProcessModule,
+    DocumentationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

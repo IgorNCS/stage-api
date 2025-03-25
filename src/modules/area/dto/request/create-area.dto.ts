@@ -9,4 +9,14 @@ export class CreateAreaDTO {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  responsables?: string[];
+
+  @IsOptional()
+  @IsString()
+  url_image?: string;
+
+  
 }

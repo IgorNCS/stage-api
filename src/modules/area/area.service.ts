@@ -6,7 +6,7 @@ import {
 import { CreateAreaDTO } from './dto/request/create-area.dto';
 import { UpdateAreaDTO } from './dto/request/update-area.dto';
 import { Area } from './entities/area.entity';
-import { Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ClsService } from 'nestjs-cls';
 import { Role } from '../user/enums/role';
@@ -32,7 +32,29 @@ export class AreaService {
           'Access not authorizedn only admin can create area',
         );
       }
-      return await this.modelRepository.save(createAreaDTO);
+      const area: any = {
+        name: createAreaDTO.name,
+        description: createAreaDTO.description,
+        url_image: createAreaDTO.url_image,
+        active: true,
+      };
+      // if (createAreaDTO.responsables)
+      //   area.responsables = createAreaDTO.responsables.map((responsable) => ({
+      //     id: responsable,
+      //   }));
+
+      if (createAreaDTO.responsables) {
+        area.responsables = createAreaDTO.responsables.map((responsableId) => ({
+          id: responsableId,
+        }));
+
+        area.employers = createAreaDTO.responsables.map((responsableId) => ({
+          id: responsableId,
+        }));
+      }
+      
+
+      return await this.modelRepository.save(area);
     } catch (error) {
       throw error;
     }
@@ -49,8 +71,9 @@ export class AreaService {
       where.responsables = { id: user.userId };
     }
 
+
     const [data, totalItems] = await this.modelRepository.findAndCount({
-      relations: ['responsables'],
+      relations: ['responsables', 'processes', 'employers'],
       order: { created_at: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
@@ -68,32 +91,88 @@ export class AreaService {
   }
 
   async findOne(id: string) {
-    return await this.modelRepository.findOne({ where: { id }, relations: ['responsables'] });
+    return await this.modelRepository.findOne({
+      where: { id },
+      relations: ['responsables', 'processes', 'employers','documentations'],
+    });
+  }
+
+  async findAllAreaNames(): Promise<Area[]> {
+    const userToken = this.clsService.get('user');
+    const where: any = { active: true };
+
+
+    if (userToken && userToken.role !== Role.ADMIN) {
+      const user = await this.userRepository.findOne({
+        where: { id: userToken.userId },
+        relations: ['areas'],
+      });
+      if (!user) throw new NotFoundException('User not found');
+      where.id = In(user.areas.map((area) => area.id));
+    }
+
+    return this.modelRepository.find({
+      select: ['id', 'name'],
+      where,
+    });
+  }
+
+  async findAllEmployersArea(areaId: string): Promise<User[]> {
+    try {
+      const userToken = this.clsService.get('user');
+      const area = await this.modelRepository.findOne({
+        where: { id: areaId },
+        relations: ['employers'],
+      });
+
+      if (!area) {
+        return [];
+      }
+
+      if (userToken.role === Role.ADMIN || userToken.role === Role.MANAGER) {
+        return area.employers;
+      }
+
+      const user = await this.userRepository.findOne({
+        where: { id: userToken.userId },
+        relations: ['areas'],
+      });
+      if (!user) throw new NotFoundException('User not found');
+
+      if (!user.areas.some((area) => area.id === areaId)) {
+        return [];
+      }
+
+      return area.employers;
+    } catch (error) {
+      console.error('Erro ao buscar empregadores da área:', error);
+      throw error;
+    }
   }
 
   async update(id: string, updateAreaDTO: UpdateAreaDTO) {
-    try {
-      const userId = this.clsService.get('user');
-      const area = await this.modelRepository.findOne({
-        where: { id },
-        relations: ['responsables'],
-      });
-      if (!area) throw new NotFoundException('Area not found');
-      if (
-        userId.role !== Role.ADMIN &&
-        (userId.role !== Role.MANAGER ||
-          !area.responsables.some(
-            (responsable) => responsable.id === userId.userId,
-          ))
-      ) {
-        throw new UnauthorizedException(
-          'Access not authorizedn only admin or responsible can update area',
-        );
-      }
-      return await this.modelRepository.save({ id, ...updateAreaDTO });
-    } catch (error) {
-      throw error;
-    }
+    // try {
+    //   const userId = this.clsService.get('user');
+    //   const area = await this.modelRepository.findOne({
+    //     where: { id },
+    //     relations: ['responsables'],
+    //   });
+    //   if (!area) throw new NotFoundException('Area not found');
+    //   if (
+    //     userId.role !== Role.ADMIN &&
+    //     (userId.role !== Role.MANAGER ||
+    //       !area.responsables.some(
+    //         (responsable) => responsable.id === userId.userId,
+    //       ))
+    //   ) {
+    //     throw new UnauthorizedException(
+    //       'Access not authorizedn only admin or responsible can update area',
+    //     );
+    //   }
+    //   return await this.modelRepository.save({ id, ...updateAreaDTO });
+    // } catch (error) {
+    //   throw error;
+    // }
   }
 
   async addResponsableToArea(areaId: string, userId: string): Promise<Area> {

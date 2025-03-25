@@ -35,8 +35,20 @@ export class AreaController {
     return this.areaService.findAll(paginationFilterRequest);
   }
 
+  @Get('names')
+  findAllAreaNames() {
+    return this.areaService.findAllAreaNames();
+  }
+
+  @Get(':id/employers')
+  findAllEmployersArea(@Param('id') areaId: string) {
+    return this.areaService.findAllEmployersArea(areaId);
+  }
+
+  
   @Get(':id')
   findOne(@Param('id') id: string) {
+
     return this.areaService.findOne(id);
   }
 

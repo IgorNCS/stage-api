@@ -15,9 +15,6 @@ export class CreateUserRequestDTO {
   @IsDate()
   birthday: Date;
 
-  @IsEnum(Role)
-  @IsOptional()
-  role: Role = Role.EMPLOYEER;
 
   @IsString()
   password: string;
@@ -28,6 +25,12 @@ export class CreateUserRequestDTO {
   @IsBoolean()
   @IsNotEmpty()
   active: boolean = true;
+
+  @IsString()
+  areaIds?: string[];
+
+  @IsEnum(Role)
+  role: Role = Role.EMPLOYEER;
 
 }
 
