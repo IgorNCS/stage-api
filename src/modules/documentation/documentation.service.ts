@@ -18,22 +18,26 @@ export class DocumentationService {
     private readonly processRepository: Repository<Process>,
   ) {}
   async create(createDocumentationDto: CreateDocumentationDto) {
-    const documentation:any = {
+    const documentation: any = {
       name: createDocumentationDto.name,
       documentText: createDocumentationDto.documentText,
-      user: createDocumentationDto.userId,
-
+      user: { id: createDocumentationDto.userId },
     };
 
+    if (createDocumentationDto.tools)
+      documentation.tools = createDocumentationDto.tools;
 
-    if (createDocumentationDto.tools) documentation.tools = createDocumentationDto.tools;
-  
-    if(createDocumentationDto.areas) documentation.areas = createDocumentationDto.areas.map(area => ({id: area}));
-    if(createDocumentationDto.processes) documentation.processes = createDocumentationDto.processes.map(process => ({id: process}));
-    
+    if (createDocumentationDto.areas)
+      documentation.areas = createDocumentationDto.areas.map((area) => ({
+        id: area,
+      }));
+    if (createDocumentationDto.processes)
+      documentation.processes = createDocumentationDto.processes.map(
+        (process) => ({ id: process }),
+      );
+
     return await this.modelRepository.save(documentation);
   }
-  
 
   async findAll(paginationFilterRequest) {
     return await this.modelRepository.find({

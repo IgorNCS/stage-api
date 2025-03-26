@@ -42,7 +42,6 @@ export class Documentation {
   @ManyToOne(() => User, (user) => user.documentations)
   user: User;
 
-
   @ManyToMany(() => Area, (area) => area.documentations)
   areas: Area[];
 

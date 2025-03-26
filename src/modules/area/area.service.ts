@@ -206,7 +206,6 @@ export class AreaService {
         );
       }
 
-      // Verifica se o usuário já é responsável pela área
       if (
         !area.responsables.some((responsable) => responsable.id === user.id)
       ) {
@@ -214,7 +213,7 @@ export class AreaService {
         return this.modelRepository.save(area);
       }
 
-      return area; // Retorna a área sem alterações se o usuário já for responsável
+      return area; 
     } catch (error) {
       throw error;
     }

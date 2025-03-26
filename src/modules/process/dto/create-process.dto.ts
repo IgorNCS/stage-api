@@ -18,6 +18,18 @@ export class CreateProcessDto {
   associated_documentation?: string[];
 
   @IsEnum(ProcessStatus)
-  status: ProcessStatus = ProcessStatus.DRAFT;
+  status?: ProcessStatus = ProcessStatus.DRAFT;
+
+  @IsOptional()
+  @IsArray()
+  responsible_people: string[] = [];
+
+  @IsOptional()
+  @IsString()
+  process_parent?: string;
+
+  @IsOptional()
+  @IsString()
+  documentation?: string;
 }
 

@@ -27,7 +27,7 @@ export class ProcessService {
     private readonly areaService: AreaService,
   ) {}
 
-  async create(areaId: string, createAreaDTO: CreateProcessDto) {
+  async create(areaId: string, createProcess: CreateProcessDto) {
     try {
       const userId = this.clsService.get('user');
       const area = await this.areaService.findOne(areaId);
@@ -44,7 +44,51 @@ export class ProcessService {
           'Access not authorizedn only MANAGER and ADMIN can create process',
         );
       }
-      return await this.modelRepository.save({ ...createAreaDTO, area: area });
+      const process: any = {
+        name: createProcess.name,
+        description: createProcess.description,
+        systems_tools: createProcess.systems_tools,
+        area: { id: areaId },
+        active: true,
+      };
+
+      if (createProcess.documentation)
+        process.documentation = createProcess.documentation;
+
+      if (createProcess.responsible_people && createProcess.responsible_people.length > 0)
+        process.responsible_people = createProcess.responsible_people.map(
+          (person) => ({
+            id: person,
+          }),
+        );
+
+      // return await this.modelRepository.save(process);
+      const processSaved = await this.modelRepository.save(process);
+
+      if (createProcess.process_parent) {
+        const processParent = await this.modelRepository.findOne({
+          where: { id: createProcess.process_parent },
+          relations: ['subProcesses'],
+        });
+  
+        if (!processParent) {
+          throw new NotFoundException(`Process with ID ${createProcess.process_parent} not found`);
+        }
+  
+        // Inicializa subProcesses se for null ou undefined
+        if (!processParent.subProcesses) {
+          processParent.subProcesses = [];
+        }
+        console.log(processParent)
+        processParent.subProcesses.push(processSaved);
+        console.log(processParent)
+        await this.modelRepository.save(processParent); // Salva o processParent atualizado
+        console.log(processParent)
+        processSaved.parent_process = { id: createProcess.process_parent };
+        await this.modelRepository.save(processSaved); // Salva o processSaved com o parent_process
+      }
+
+      return processSaved;
     } catch (error) {
       throw error;
     }
@@ -84,7 +128,7 @@ export class ProcessService {
     }
 
     const [data, totalItems] = await this.modelRepository.findAndCount({
-      relations: ['responsables', 'area'],
+      relations: ['responsible_people', 'area'],
       order: { created_at: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
@@ -101,8 +145,17 @@ export class ProcessService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} process`;
+  async findOne(id: string) {
+    return await this.modelRepository.findOne({
+      where: { id },
+      relations: [
+        'responsible_people',
+        'area',
+        'documentations',
+        'parent_process',
+        'subProcesses',
+      ],
+    });
   }
 
   update(id: number, updateProcessDto: UpdateProcessDto) {

@@ -39,7 +39,7 @@ export class ProcessController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.processService.findOne(+id);
+    return this.processService.findOne(id);
   }
 
   @Patch(':id')

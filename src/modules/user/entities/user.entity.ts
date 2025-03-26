@@ -49,45 +49,16 @@ export class User {
   @Column()
   active: boolean;
 
-  // @ManyToMany(() => Area, (area) => area.responsables)
-  // @JoinTable({
-  //   name: 'user_areas',
-  //   joinColumn: {
-  //     name: 'user_id',
-  //     referencedColumnName: 'id',
-  //   },
-  //   inverseJoinColumn: {
-  //     name: 'area_id',
-  //     referencedColumnName: 'id',
-  //   },
-  // })
-  // areas: Area[];
-
-  // @ManyToMany(() => Area, (area) => area.employers)
-  // employer_area: Area[];
-
   @ManyToMany(() => Area, (area) => area.responsables)
   areas: Area[];
 
   @ManyToMany(() => Area, (area) => area.employers)
   employer_area: Area[];
 
-  @ManyToMany(() => Process, (process) => process.responsible_people)
-  @JoinTable({
-    name: 'user_process',
-    joinColumn: {
-      name: 'user_id',
-      referencedColumnName: 'id',
-    },
-    inverseJoinColumn: {
-      name: 'process_id',
-      referencedColumnName: 'id',
-    },
-  })
+
+  @ManyToMany(() => Process, (processes) => processes.responsible_people)
   processes: Process[];
 
-@OneToMany(() => Documentation, (documentation) => documentation.user)
-documentations: Documentation[];
-
+  @OneToMany(() => Documentation, (documentation) => documentation.user)
+  documentations: Documentation[];
 }
-

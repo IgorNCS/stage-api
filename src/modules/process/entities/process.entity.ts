@@ -31,17 +31,34 @@ export class Process {
 
   @ManyToMany(() => User, (user) => user.processes)
   @JoinTable({
-    name: 'process_responsible_people', // Nome da tabela de junção especificado
+    name: 'process_responsible_people', 
   })
   responsible_people: User[];
+
+  // @ManyToMany(() => Process, (process) => process.documentations)
+  // @JoinTable({
+  //   name: 'process_documentations',
+  //   joinColumn: {
+  //     name: 'documentation_id',
+  //     referencedColumnName: 'id',
+  //   },
+  //   inverseJoinColumn: {
+  //     name: 'process_id',
+  //     referencedColumnName: 'id',
+  //   },
+  // })
+  // processes: Process[];
+
+  // @ManyToMany(() => Documentation, (documentation) => documentation.processes)
+  // documentations: Documentation[];
 
   @ManyToOne(() => Area, (area) => area.processes)
   area: Area;
 
   @OneToMany(() => Process, (process) => process.parent_process)
-  subProcesses: Process[] | null; // Renomeado para subProcesses
+  subProcesses: Process[] | null; 
 
-  @ManyToOne(() => Process, (process) => process.subProcesses) // Ajustado para subProcesses
+  @ManyToOne(() => Process, (process) => process.subProcesses) 
   parent_process: Process | null;
 
   @CreateDateColumn()

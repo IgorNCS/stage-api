@@ -31,7 +31,7 @@ export class Area {
     cascade: true,
   })
   @JoinTable({
-    name: 'area_users_responsables', // Nome da tabela de junção padronizado
+    name: 'area_users_responsables', 
     joinColumn: {
       name: 'area_id',
       referencedColumnName: 'id',
@@ -41,13 +41,13 @@ export class Area {
       referencedColumnName: 'id',
     },
   })
-  responsables: User[]; // Usuários responsáveis pela área
+  responsables: User[]; 
 
   @ManyToMany(() => User, (user) => user.employer_area, {
     cascade: true,
   })
   @JoinTable({
-    name: 'area_users_employers', // Nome da tabela de junção padronizado
+    name: 'area_users_employers',  
     joinColumn: {
       name: 'area_id',
       referencedColumnName: 'id',
@@ -57,7 +57,7 @@ export class Area {
       referencedColumnName: 'id',
     },
   })
-  employers: User[]; // Usuários que trabalham na área
+  employers: User[]; 
 
   @CreateDateColumn()
   created_at: Date;
@@ -77,7 +77,7 @@ export class Area {
 
   @ManyToMany(() => Documentation, (documentation) => documentation.areas)
   @JoinTable({
-    name: 'area_documentations', // Mantenha este nome
+    name: 'area_documentations',
     joinColumn: {
       name: 'area_id',
       referencedColumnName: 'id',
